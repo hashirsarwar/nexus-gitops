@@ -1,5 +1,5 @@
 image:
-  tag: "" # Set to the commit SHA published by CI.
+  tag: "6365683ac0e6cd51b83d1ddecb640dc415788053" # Set to the commit SHA published by CI.
 
 postgres:
   host: pg-nexus-nonprod-8471697e.postgres.database.azure.com
