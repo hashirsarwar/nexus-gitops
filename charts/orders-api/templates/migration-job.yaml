@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migration
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.workloadIdentity.serviceAccountName }}-migration
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ required "Set image.tag in the environment values file to a published commit SHA" .Values.image.tag }}"
+          args: ["--migrate"]
+          env:
+            - name: ConnectionStrings__Postgres
+              value: {{ printf "Host=%s;Database=%s;Username=%s;SSL Mode=VerifyFull" .Values.postgres.host .Values.postgres.database .Values.postgres.username | quote }}
+            - name: Postgres__UseWorkloadIdentity
+              value: "true"
