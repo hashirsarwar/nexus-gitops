@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-health-check
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: health-check
+          image: curlimages/curl:8.22.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+{{ .Files.Get "files/health-check.sh" | indent 14 }}
+          env:
+            - name: HEALTH_URL
+              value: "http://{{ .Release.Name }}/health/ready"
