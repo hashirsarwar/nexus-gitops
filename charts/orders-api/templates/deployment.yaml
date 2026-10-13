@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.workloadIdentity.serviceAccountName }}
+      containers:
+        - name: orders-api
+          image: "{{ .Values.image.repository }}:{{ required "Set image.tag in the environment values file to a published commit SHA" .Values.image.tag }}"
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ConnectionStrings__Postgres
+              value: {{ printf "Host=%s;Database=%s;Username=%s;SSL Mode=VerifyFull" .Values.postgres.host .Values.postgres.database .Values.postgres.username | quote }}
+            - name: Postgres__UseWorkloadIdentity
+              value: "true"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http

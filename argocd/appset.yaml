@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: orders-api
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - environment: dev
+            cluster: in-cluster
+          - environment: staging
+            cluster: in-cluster
+          - environment: prod
+            cluster: aks-nexus-prod
+  template:
+    metadata:
+      name: 'orders-api-{{.environment}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/hashirsarwar/nexus-gitops.git
+        targetRevision: main
+        path: charts/orders-api
+        helm:
+          releaseName: orders-api
+          valueFiles:
+            - 'values-{{.environment}}.yaml'
+      destination:
+        name: '{{.cluster}}'
+        namespace: '{{.environment}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

@@ -1,0 +1,10 @@
+image:
+  repository: nexusprod1d112521.azurecr.io/orders-api
+  tag: "" # Set to the commit SHA published by CI.
+
+postgres:
+  host: pg-nexus-prod-8471697e.postgres.database.azure.com
+  username: mi-orders-api-prod
+
+workloadIdentity:
+  clientId: "01c3b0f4-b0aa-46fb-83ad-1e5bd725eb5b" # Set from the orders_api_client_id Terraform output.
