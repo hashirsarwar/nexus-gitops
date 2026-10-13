@@ -1,6 +1,6 @@
 image:
   repository: nexusprod1d112521.azurecr.io/orders-api
-  tag: "" # Set to the commit SHA published by CI.
+  tag: "ccb3a0f97b27f50ab0cddc15f920a9133e17cc50" # Set to the commit SHA published by CI.
 
 postgres:
   host: pg-nexus-prod-8471697e.postgres.database.azure.com
